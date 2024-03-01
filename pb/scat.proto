@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "./;pb";
+
+package pb;
+
+service AnalyzeTools {
+  rpc checkSmartContractCode (SourceCodeRequest) returns (CheckResult) {}
+}
+
+message SourceCodeRequest {
+  string sourceCode = 1;
+}
+
+message CheckResult {
+  string reslut = 1;
+}
