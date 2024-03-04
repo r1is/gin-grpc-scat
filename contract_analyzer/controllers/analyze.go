@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"analyze_tool/tools"
+	"contract_analyzer/utils/toolgrpc"
 	"fmt"
 	"net/http"
 	"pkg/apis"
@@ -47,9 +48,10 @@ func (a AnalyzToolController) AnalyzeSourceCode(ctx *gin.Context) {
 func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 	//异步扫描代码漏洞
 	resp := &apis.AnalyzeSourceCodeResp{RequestId: req.RequestId}
-	tool := tools.GetToolByName(req.ToolName)
+	tool := toolgrpc.GetToolByName(req.ToolName)
+	// tool := tools.GetToolByName(req.ToolName)
 
-	result, err := tool.AnalyzeSourceCode(req.SourceCode)
+	_result, err := tool.Dect(req.SourceCode)
 
 	if err != nil {
 		resp.StatusCode = -1
@@ -61,9 +63,11 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 		log.LogInfo(fmt.Sprintf("Resp: %v", resp))
 		return
 	}
+	log.LogInfo(fmt.Sprintf("Tool %v run result: %v", tool.Name(), _result))
 
 	resp.Resp = apis.SuccessResp()
-	resp.Result = result
+	log.LogInfo("grpc返回的扫描结果：" + _result)
+	// resp.Result = _result
 	//将结果存入mongodb
 	_err := db.InsertData(resp)
 	if _err != nil {

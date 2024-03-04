@@ -14,7 +14,7 @@ var client *qmgo.QmgoClient
 
 // 初始化
 func InitMongoDB() {
-	ctx := context.Background()
+	ctx := context.TODO()
 	dsn := fmt.Sprintf("mongodb://%v:27017", "mongodb")
 	cli, err := qmgo.Open(ctx, &qmgo.Config{Uri: dsn, Database: "SCAT", Coll: "VulDetection"})
 

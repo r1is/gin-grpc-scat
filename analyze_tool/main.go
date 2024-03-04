@@ -41,13 +41,13 @@ func main() {
 	flag.StringVar(&toolName, "t", "", "tool name")
 	flag.Parse()
 
-	log.LogInfo("server is running...")
 	addr := fmt.Sprintf(":%s", port)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.LogError(fmt.Sprintf("failed to listen: %v", err))
 
 	}
+	log.LogInfo(fmt.Sprintf("server is running on port %s", addr))
 	s := grpc.NewServer()
 	pb.RegisterAnalyzeToolsServer(s, &server{})
 

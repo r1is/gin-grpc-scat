@@ -56,6 +56,7 @@ func (s Slither) AnalyzeSourceCode(sourceCode string) (models.SourceCodeAnalyzeR
 	}
 	//落地的文件名
 	sourceFileName := common.GetRandomString() + ".sol"
+	fmt.Println("===========Slither sourceFileName:", sourceFileName)
 	err := ioutil.WriteFile(sourceFileName, []byte(sourceCode), 0644)
 	if err != nil {
 		return models.SourceCodeAnalyzeResult{}, fmt.Errorf("AnalyzeSourceCode: create new solidity file error")

@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  mythril:
+    build:
+      context: ./analyze_tool
+      dockerfile: docker/mythril/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - TOOLNAME=Mythril
+      - PORT=8084
+    restart: on-failure
+    depends_on:
+      - mongodb
+  manticore:
+    build:
+      context: ./analyze_tool
+      dockerfile: docker/manticore/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - TOOLNAME=Manticore
+      - PORT=8085
+    restart: on-failure
+    depends_on:
+      - mongodb
+  slither:
+    build:
+      context: ./analyze_tool
+      dockerfile: docker/slither/Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      - TOOLNAME=Slither
+      - PORT=8086
+    restart: on-failure
+    depends_on:
+      - mongodb
+  contract_analyzer:
+    build:
+      context: ./contract_analyzer
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - PORT=8083
+      - MYTHRILPORT=8084
+      - MANTICOREPORT=8085
+    restart: on-failure
+  mongodb:
+    image: mongo:4.0.4
+    ports:
+      - "27017:27017"
