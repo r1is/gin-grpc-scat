@@ -29,7 +29,8 @@ func (a AnalyzToolController) AnalyzeSourceCode(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, resp)
 		return
 	}
-	fmt.Println("req:", req, "req.ToolName: ", req.ToolName)
+
+	// fmt.Println("req:", req, "req.ToolName: ", req.ToolName)
 	tool := tools.GetToolByName(req.ToolName)
 	if tool == nil || tool.Name() == "" {
 		resp.StatusCode = -1
@@ -41,9 +42,12 @@ func (a AnalyzToolController) AnalyzeSourceCode(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, resp)
 		return
 	}
-
-	ctx.JSON(http.StatusOK, apis.Resp{StatusCode: 0, StatusMessage: "ok"})
-	go asyncCodeVulScan(req)
+	if db.IsExistRequestId(req.RequestId) {
+		ctx.JSON(http.StatusOK, apis.SuccessRespWithMsg("任务已存在!"))
+	} else {
+		ctx.JSON(http.StatusOK, apis.SuccessRespOK())
+		go asyncCodeVulScan(req)
+	}
 
 }
 
@@ -52,6 +56,9 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 	resp := &apis.AnalyzeSourceCodeResp{RequestId: req.RequestId}
 	tool := toolgrpc.GetToolByName(req.ToolName)
 	// tool := tools.GetToolByName(req.ToolName)
+	resp.Resp = apis.AuditingResp()
+	//第一次操作数据库，写入正在审计中的状态
+	db.InsertData(resp)
 
 	_result, err := tool.Dect(req.SourceCode)
 
@@ -59,7 +66,7 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 		// resp.StatusCode = -1
 		// resp.StatusMessage = fmt.Sprintf("Tool %v run error: %v", tool.Name(), err)
 		resp.Resp = apis.FinishAuditFailResp(fmt.Sprintf("Tool %v run error: %v", tool.Name(), err))
-		_err := db.InsertData(resp)
+		_err := db.UpdateStatusByReqId(req.RequestId, resp.Resp)
 		if _err != nil {
 			log.LogInfo(fmt.Sprintf("InsertData error: %v", _err))
 		}
@@ -67,8 +74,14 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 		return
 	}
 	log.LogInfo(fmt.Sprintf("Tool %v run result: %v", tool.Name(), _result))
+	//以下是 grpc 条用正常，且审计正常的逻辑
 
-	resp.Resp = apis.SuccessRespWithMsg("审计结束")
+	resp.Resp = apis.FinishAuditResp()
+	_err := db.UpdateStatusByReqId(req.RequestId, resp.Resp)
+	if _err != nil {
+		log.LogInfo(fmt.Sprintf("InsertData error: %v", _err))
+	}
+
 	var aduitRes models.SourceCodeAnalyzeResult
 	log.LogInfo("\ngrpc返回的扫描结果：" + _result + "\n")
 	_err_ := json.Unmarshal([]byte(_result), &aduitRes)
@@ -79,9 +92,9 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 
 	resp.Result = aduitRes
 	//将结果存入mongodb
-	_err := db.InsertData(resp)
-	if _err != nil {
-		log.LogInfo(fmt.Sprintf("InsertData error: %v", _err))
+	_err1 := db.UpdateVluResByReqId(req.RequestId, resp.Result)
+	if _err1 != nil {
+		log.LogInfo(fmt.Sprintf("InsertData error: %v", _err1))
 	}
 	log.LogInfo(fmt.Sprintf("Req: %v, Resp: %v", req, resp))
 }

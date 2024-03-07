@@ -12,6 +12,14 @@ func SuccessResp() Resp {
 	}
 }
 
+// 上传代码成功
+func SuccessRespOK() Resp {
+	return Resp{
+		StatusCode:    0,
+		StatusMessage: "ok",
+	}
+}
+
 // 审计成功
 func SuccessRespWithMsg(msg string) Resp {
 	return Resp{
@@ -39,15 +47,15 @@ func AuditingResp() Resp {
 // 完成审计
 func FinishAuditResp() Resp {
 	return Resp{
-		StatusCode:    2,
-		StatusMessage: "完成审计",
+		StatusCode:    0,
+		StatusMessage: "审计完成",
 	}
 }
 
 // 完成审计，但是审计失败
 func FinishAuditFailResp(faildMsg string) Resp {
 	return Resp{
-		StatusCode:    3,
+		StatusCode:    2,
 		StatusMessage: faildMsg,
 	}
 }
