@@ -1,5 +1,5 @@
 #!/bin/bash
-export GOPROXY=https://goproxy.io,direct
+export GOPROXY=https://goproxy.cn,direct
 export CGO_ENABLED=0
 
 cd analyze_tool

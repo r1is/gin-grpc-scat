@@ -25,7 +25,7 @@ func (s *server) CheckSmartContractCode(ctx context.Context, in *pb.SourceCodeRe
 	tool := tools.GetToolByName(toolName)
 	res, err := tool.AnalyzeSourceCode(SourceCode)
 	if err != nil {
-		return &pb.CheckResult{Reslut: fmt.Sprintf("调用%v发生错误", toolName)}, nil
+		return &pb.CheckResult{Reslut: fmt.Sprintf("调用%v发生错误", toolName)}, err
 	}
 	// 将结构体转换为 JSON 格式的字符串
 	jsonData, _ := json.Marshal(res)

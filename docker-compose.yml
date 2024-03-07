@@ -41,6 +41,7 @@ services:
       - MYTHRILPORT=8084
       - MANTICOREPORT=8085
       - SLITHERPORT=8086
+      - GIN_MODE=release
     restart: on-failure
     depends_on:
       - mongodb

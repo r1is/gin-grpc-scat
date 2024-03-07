@@ -3,9 +3,11 @@ package controllers
 import (
 	"analyze_tool/tools"
 	"contract_analyzer/utils/toolgrpc"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"pkg/apis"
+	models "pkg/contract_models"
 	"pkg/log"
 
 	"github.com/gin-gonic/gin"
@@ -54,20 +56,28 @@ func asyncCodeVulScan(req apis.AnalyzeSourceCodeReq) {
 	_result, err := tool.Dect(req.SourceCode)
 
 	if err != nil {
-		resp.StatusCode = -1
-		resp.StatusMessage = fmt.Sprintf("Tool %v run error: %v", tool.Name(), err)
+		// resp.StatusCode = -1
+		// resp.StatusMessage = fmt.Sprintf("Tool %v run error: %v", tool.Name(), err)
+		resp.Resp = apis.FinishAuditFailResp(fmt.Sprintf("Tool %v run error: %v", tool.Name(), err))
 		_err := db.InsertData(resp)
 		if _err != nil {
 			log.LogInfo(fmt.Sprintf("InsertData error: %v", _err))
 		}
-		log.LogInfo(fmt.Sprintf("Resp: %v", resp))
+		log.LogInfo(fmt.Sprintf("审计失败的Resp: %v", resp))
 		return
 	}
 	log.LogInfo(fmt.Sprintf("Tool %v run result: %v", tool.Name(), _result))
 
-	resp.Resp = apis.SuccessResp()
-	log.LogInfo("grpc返回的扫描结果：" + _result)
-	// resp.Result = _result
+	resp.Resp = apis.SuccessRespWithMsg("审计结束")
+	var aduitRes models.SourceCodeAnalyzeResult
+	log.LogInfo("\ngrpc返回的扫描结果：" + _result + "\n")
+	_err_ := json.Unmarshal([]byte(_result), &aduitRes)
+	if _err_ != nil {
+		fmt.Println("转换为JSON时出错:", err)
+		return
+	}
+
+	resp.Result = aduitRes
 	//将结果存入mongodb
 	_err := db.InsertData(resp)
 	if _err != nil {

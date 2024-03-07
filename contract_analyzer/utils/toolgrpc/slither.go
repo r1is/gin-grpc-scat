@@ -39,9 +39,11 @@ func (m *SlitherToolGrpc) Dect(_sourceCode string) (string, error) {
 	req := &pb.SourceCodeRequest{SourceCode: _sourceCode}
 	res, err := m.client.CheckSmartContractCode(ctx, req)
 	if err != nil {
-		log.LogError(fmt.Sprintf("error: %v", err))
+		log.LogError(fmt.Sprintf("call %s error ->: %v", m.Name(), err))
+		//fix bug
+		return "", err
 	}
-	log.LogInfo(fmt.Sprintf("Mythril Dect result: %v", res.Reslut))
+	log.LogInfo(fmt.Sprintf("%s Dect result: %v", m.Name(), res.Reslut))
 	return res.Reslut, nil
 }
 
