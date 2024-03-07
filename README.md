@@ -1,6 +1,24 @@
 # SCAT
 > SCAT(Smart Contract Audit Tasks)是用于自动化审计智能合约的平台系统，集成了主流的自动化检测工具，涵盖 SWC 中的全部漏洞类型，能够自主上传合约进行审计，持久存储审计结果，建立合约仓库。
 
+#### ENV
+- ubuntu 20.04
+- golang 1.21.5
+- docker
+```bash
+Client:
+ Version:    24.0.5
+Server:
+ Server Version: 24.0.5
+```
+- docker-compose
+```bash
+docker-compose version 1.25.0, build unknown
+docker-py version: 4.1.0
+CPython version: 3.8.10
+OpenSSL version: OpenSSL 1.1.1f  31 Mar 2020
+```  
+
 ### contract_analyzer 
 对外提供合约漏洞检测接口的模块，根据外部请求中的 tool 类型通过grpc转发到对应的 analyze_tool 服务。
 
