@@ -18,6 +18,8 @@ docker-py version: 4.1.0
 CPython version: 3.8.10
 OpenSSL version: OpenSSL 1.1.1f  31 Mar 2020
 ```  
+## SCAT架构示意图
+![scat架构图](./img/scat.png)  
 
 ### contract_analyzer 
 对外提供合约漏洞检测接口的模块，根据外部请求中的 tool 类型通过grpc转发到对应的 analyze_tool 服务。
