@@ -48,21 +48,21 @@ jobs:
 
     - name: package release
       run: |
-        mkdir -p release
-        cp -r analyze_tool release/
-        cp -r contract_analyzer release/
-        cp -r docker-compose.yml release/
-        cd release
-        tar -czvf release.tar.gz *
-        mv release.tar.gz ../
-        cd ..
-
+        mkdir -p release/analyze_tool/build
+        mkdir -p release/contract_analyzer/build
+        cp -r analyze_tool/build/main release/analyze_tool/build
+        cp -r analyze_tool/docker release/analyze_tool
+        cp -r contract_analyzer/build/main release/contract_analyzer/build
+        cp -r contract_analyzer/Dockerfile release/contract_analyzer
+        cp -r docker-compose.yml release
+        tar -czvf release.tar.gz release
+        
     - name: Publish Release
       uses: softprops/action-gh-release@v1
       with:
         files: release.tar.gz
-        tag_name: v1.0
-        release_name: Release v1.0
-        body: "Initial release"
+        tag_name: v1.1
+        release_name: Release v1.1
+        body: "scat"
       env:
         GITHUB_TOKEN: ${{ secrets.LLLL }}
