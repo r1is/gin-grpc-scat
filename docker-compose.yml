@@ -4,6 +4,8 @@ services:
     build:
       context: ./analyze_tool
       dockerfile: docker/mythril/Dockerfile
+    volumes:
+      - ./data:/opt
     expose:
       - "8084"
     environment:

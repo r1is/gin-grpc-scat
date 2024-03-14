@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"analyze_tool/tools"
 	"contract_analyzer/utils/toolgrpc"
 	"encoding/json"
 	"fmt"
@@ -30,18 +29,23 @@ func (a AnalyzToolController) AnalyzeSourceCode(ctx *gin.Context) {
 		return
 	}
 
-	// fmt.Println("req:", req, "req.ToolName: ", req.ToolName)
-	tool := tools.GetToolByName(req.ToolName)
-	if tool == nil || tool.Name() == "" {
+	if req.RequestId == "" {
 		resp.StatusCode = -1
-		var toolsName []string
-		for _, tool := range tools.Tools {
-			toolsName = append(toolsName, tool.Name())
-		}
-		resp.StatusMessage = fmt.Sprintf("The tool name is invalid, and the available tools are: %v. You can also use 'all' to specify all tools", toolsName)
+		resp.StatusMessage = "requestId is required"
 		ctx.JSON(http.StatusOK, resp)
 		return
 	}
+
+	// fmt.Println("req:", req, "req.ToolName: ", req.ToolName)
+	tool := toolgrpc.GetToolByName(req.ToolName)
+	if tool == nil || tool.Name() == "" {
+		resp.RequestId = req.RequestId
+		resp.StatusCode = -1
+		resp.StatusMessage = fmt.Sprintf("The tool name is invalid!")
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+
 	if db.IsExistRequestId(req.RequestId) {
 		ctx.JSON(http.StatusOK, apis.SuccessRespWithMsg("任务已存在!"))
 	} else {
