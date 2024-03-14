@@ -1,0 +1,68 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: release-scat
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore: 
+      - 'README.md'
+      - 'LICENSE'
+      - 'go.mod'
+      - 'go.sum'
+      - '.gitignore'
+      - '.github/**'
+      - 'Dockerfile'
+      
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.21.5
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Update dependencies
+      run: |
+        cd analyze_tool
+        go mod tidy
+
+        cd ../contract_analyzer
+        go mod tidy
+
+    - name: Build analyze_tool
+      run: |
+        cd analyze_tool
+        go build -o build/main ./main.go
+
+    - name: Build contract_analyzer
+      run: |
+        cd contract_analyzer
+        go build -o build/main ./main.go
+
+    - name: package release
+      run: |
+        mkdir -p release
+        cp -r analyze_tool release/
+        cp -r contract_analyzer release/
+        cp -r docker-compose.yml release/
+        cd release
+        tar -czvf release.tar.gz *
+        mv release.tar.gz ../
+        cd ..
+
+    - name: Publish Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release.tar.gz
+        tag_name: v1.0
+        release_name: Release v1.0
+        body: "Initial release"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
