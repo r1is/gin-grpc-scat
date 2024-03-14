@@ -65,4 +65,4 @@ jobs:
         release_name: Release v1.0
         body: "Initial release"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.RELEASE }}
