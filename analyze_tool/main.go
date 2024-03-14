@@ -37,7 +37,7 @@ var port string
 var toolName string
 
 func main() {
-	fmt.Println("analyze_tool start!")
+	fmt.Println("analyze_tool start!!")
 	flag.StringVar(&port, "p", "0", "web port")
 	flag.StringVar(&toolName, "t", "", "tool name")
 	flag.Parse()
